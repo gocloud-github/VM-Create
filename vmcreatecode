@@ -1,0 +1,76 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_vm_win_name": {
+            "defaultValue": "vm-win",
+            "type": "String"
+        },
+        "disks_vm_win_OsDisk_1_4925b3b82a7f4ab5875985a85e9b7b54_externalid": {
+            "defaultValue": "/subscriptions/0b7397d5-44d3-4a3d-af9b-dcf6610280c4/resourceGroups/RG-DATABASES/providers/Microsoft.Compute/disks/vm-win_OsDisk_1_4925b3b82a7f4ab5875985a85e9b7b54",
+            "type": "String"
+        },
+        "networkInterfaces_vm_win14_externalid": {
+            "defaultValue": "/subscriptions/0b7397d5-44d3-4a3d-af9b-dcf6610280c4/resourceGroups/rg-databases/providers/Microsoft.Network/networkInterfaces/vm-win14",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('virtualMachines_vm_win_name')]",
+            "location": "eastus",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_vm_win_name'), '_OsDisk_1_4925b3b82a7f4ab5875985a85e9b7b54')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_vm_win_OsDisk_1_4925b3b82a7f4ab5875985a85e9b7b54_externalid')]"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_vm_win_name')]",
+                    "adminUsername": "azureuser",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_vm_win14_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "https://rgdatabasesdiag478.blob.core.windows.net/"
+                    }
+                }
+            }
+        }
+    ]
+}
